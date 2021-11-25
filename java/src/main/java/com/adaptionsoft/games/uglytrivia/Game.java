@@ -1,13 +1,28 @@
 package com.adaptionsoft.games.uglytrivia;
 
+import com.adaptionsoft.games.model.Player;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
+// pas de javadoc
+// sur une seule classe (les modèle, les actions)
+// il faut découper en plusieurs classes pour faire de l'objet
+// traiter les actions sur les objets dan des services
+// Ajouter les private pour les attributs de la classe
+// Ajouter les getters et setters
+// Ajouter un constructeur pour la classe
 
+/**
+ * Le jeu
+ */
 public class Game {
-    ArrayList players = new ArrayList();
-    int[] places = new int[6];
-    int[] purses  = new int[6];
-    boolean[] inPenaltyBox  = new boolean[6];
+
+	private List<Player> players;
+
+    private int[] places;
+    private int[] purses;
+    private boolean[] inPenaltyBox;
     
     LinkedList popQuestions = new LinkedList();
     LinkedList scienceQuestions = new LinkedList();
@@ -18,6 +33,10 @@ public class Game {
     boolean isGettingOutOfPenaltyBox;
     
     public  Game(){
+    	this.players = new ArrayList<>();
+		this.places = new int[6];
+		this.purses  = new int[6];
+		this.inPenaltyBox  = new boolean[6];
     	for (int i = 0; i < 50; i++) {
 			popQuestions.addLast("Pop Question " + i);
 			scienceQuestions.addLast(("Science Question " + i));
@@ -26,31 +45,38 @@ public class Game {
     	}
     }
 
-	public String createRockQuestion(int index){
+    // uniformiser avec la classe Question pour les type de question
+	public String createRockQuestion(int index) {
 		return "Rock Question " + index;
 	}
 
 	public boolean isPlayable() {
-		return (howManyPlayers() >= 2);
+		return this.players.size() >= 2;
 	}
 
-	public boolean add(String playerName) {
-		
-		
-	    players.add(playerName);
-	    places[howManyPlayers()] = 0;
-	    purses[howManyPlayers()] = 0;
-	    inPenaltyBox[howManyPlayers()] = false;
+	/**
+	 * Ajouter un joueur et le placer dans sur le plateau
+	 * @param playerName nom du joueur
+	 */
+	public void addPlayer(String playerName){
+	    this.players.add(new Player(playerName));
+	    this.places[this.players.size()] = 0;
+	    this.purses[this.players.size()] = 0;
+	    this.inPenaltyBox[this.players.size()] = false;
 	    
 	    System.out.println(playerName + " was added");
 	    System.out.println("They are player number " + players.size());
-		return true;
-	}
-	
-	public int howManyPlayers() {
-		return players.size();
 	}
 
+	// pas d'interêt la fonction size existe déjà
+	//public int howManyPlayers() {
+		//return players.size();
+	//}
+
+	/**
+	 *
+	 * @param roll
+	 */
 	public void roll(int roll) {
 		System.out.println(players.get(currentPlayer) + " is the current player");
 		System.out.println("They have rolled a " + roll);
@@ -59,10 +85,10 @@ public class Game {
 			if (roll % 2 != 0) {
 				isGettingOutOfPenaltyBox = true;
 				
-				System.out.println(players.get(currentPlayer) + " is getting out of the penalty box");
+				System.out.println(players.get(currentPlayer).getName() + " is getting out of the penalty box");
 				movePlayerAndAskQuestion(roll);
 			} else {
-				System.out.println(players.get(currentPlayer) + " is not getting out of the penalty box");
+				System.out.println(players.get(currentPlayer).getName() + " is not getting out of the penalty box");
 				isGettingOutOfPenaltyBox = false;
 				}
 			
@@ -73,6 +99,10 @@ public class Game {
 		
 	}
 
+	/**
+	 *
+	 * @param roll
+	 */
 	private void movePlayerAndAskQuestion(int roll) {
 		places[currentPlayer] = places[currentPlayer] + roll;
 		if (places[currentPlayer] > 11) places[currentPlayer] = places[currentPlayer] - 12;
@@ -84,6 +114,9 @@ public class Game {
 		askQuestion();
 	}
 
+	/**
+	 *
+	 */
 	private void askQuestion() {
 		if (currentCategory() == "Pop")
 			System.out.println(popQuestions.removeFirst());
