@@ -1,10 +1,8 @@
 package com.adaptionsoft.games.uglytrivia;
 
-import com.adaptionsoft.games.model.Player;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
+// Toujours les mêmes remarque
 // pas de javadoc
 // sur une seule classe (les modèle, les actions)
 // il faut découper en plusieurs classes pour faire de l'objet
@@ -13,17 +11,19 @@ import java.util.List;
 // Ajouter les getters et setters
 // Ajouter un constructeur pour la classe
 
-/**
- * Le jeu
- */
 public class Game {
 
-	private List<Player> players;
+	// Chaque attribut en private ou en protected
+	// faire une classe pour le joueur
+	// faire une classe pour la piste
+	// faire une classe pour purse
+    ArrayList players = new ArrayList();
+    // on fix la taille de la piste à 6
+    int[] places = new int[6];
+    int[] purses  = new int[6];
+    boolean[] inPenaltyBox  = new boolean[6];
 
-    private int[] places;
-    private int[] purses;
-    private boolean[] inPenaltyBox;
-    
+    // faire une classe pour la question avec un type en Enum "SIENCE, SPORT, ..."
     LinkedList popQuestions = new LinkedList();
     LinkedList scienceQuestions = new LinkedList();
     LinkedList sportsQuestions = new LinkedList();
@@ -31,12 +31,9 @@ public class Game {
     
     int currentPlayer = 0;
     boolean isGettingOutOfPenaltyBox;
-    
+
+
     public  Game(){
-    	this.players = new ArrayList<>();
-		this.places = new int[6];
-		this.purses  = new int[6];
-		this.inPenaltyBox  = new boolean[6];
     	for (int i = 0; i < 50; i++) {
 			popQuestions.addLast("Pop Question " + i);
 			scienceQuestions.addLast(("Science Question " + i));
@@ -44,37 +41,35 @@ public class Game {
 			rockQuestions.addLast(createRockQuestion(i));
     	}
     }
-
-    // uniformiser avec la classe Question pour les type de question
-	public String createRockQuestion(int index) {
+	// uniformiser avec la classe Question pour les type de question
+	public String createRockQuestion(int index){
 		return "Rock Question " + index;
 	}
 
 	public boolean isPlayable() {
-		return this.players.size() >= 2;
+		return players.size() >= 2;
 	}
 
-	/**
-	 * Ajouter un joueur et le placer dans sur le plateau
-	 * @param playerName nom du joueur
-	 */
-	public void addPlayer(String playerName){
-	    this.players.add(new Player(playerName));
-	    this.places[this.players.size()] = 0;
-	    this.purses[this.players.size()] = 0;
-	    this.inPenaltyBox[this.players.size()] = false;
+	public boolean add(String playerName) {
+
+	    players.add(playerName);
+	    // ne pas recoder une fonction existante nativement (size)
+	    places[players.size()] = 0;
+	    purses[players.size()] = 0;
+	    inPenaltyBox[players.size()] = false;
 	    
 	    System.out.println(playerName + " was added");
 	    System.out.println("They are player number " + players.size());
+		return true;
 	}
 
 	// pas d'interêt la fonction size existe déjà
 	//public int howManyPlayers() {
-		//return players.size();
+	//return players.size();
 	//}
 
 	/**
-	 *
+	 * pas de java doc on ne sais pas à  ce niveau que roll c'est le numéro sortie par le dé
 	 * @param roll
 	 */
 	public void roll(int roll) {
@@ -82,15 +77,19 @@ public class Game {
 		System.out.println("They have rolled a " + roll);
 		
 		if (inPenaltyBox[currentPlayer]) {
+			// on ne doit pas tester si le numéro sorti par le dé est impaire (pas dans les règles)
+			// pour tester si on sort des places existante sur la piste
+			// il faut voir si le numéro sortie par le dé plus la position du joueur est supérieur à 6 dans notre cas la taille de la piste
 			if (roll % 2 != 0) {
+
 				isGettingOutOfPenaltyBox = true;
 				
-				System.out.println(players.get(currentPlayer).getName() + " is getting out of the penalty box");
+				System.out.println(players.get(currentPlayer) + " is getting out of the penalty box");
 				movePlayerAndAskQuestion(roll);
-			} else {
-				System.out.println(players.get(currentPlayer).getName() + " is not getting out of the penalty box");
+			 } else {
+				System.out.println(players.get(currentPlayer) + " is not getting out of the penalty box");
 				isGettingOutOfPenaltyBox = false;
-				}
+			}
 			
 		} else {
 
@@ -99,10 +98,7 @@ public class Game {
 		
 	}
 
-	/**
-	 *
-	 * @param roll
-	 */
+	private void movePlayerAndAskQuestion(int roll) {
 	private void movePlayerAndAskQuestion(int roll) {
 		places[currentPlayer] = places[currentPlayer] + roll;
 		if (places[currentPlayer] > 11) places[currentPlayer] = places[currentPlayer] - 12;
@@ -114,9 +110,6 @@ public class Game {
 		askQuestion();
 	}
 
-	/**
-	 *
-	 */
 	private void askQuestion() {
 		if (currentCategory() == "Pop")
 			System.out.println(popQuestions.removeFirst());
